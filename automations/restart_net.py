@@ -3,13 +3,15 @@ import subprocess
 import time
 
 # iniciando logger
-logger = setup_logger()
+logger = setup_logger("AutoHUB.restart_net")
 
 # nome do adaptador Ex: Ethernet, Wi-fi
 ADAPTER_NAME = "Ethernet"
 
 # roda um comando no windows
 def run_command(cmd):
+    logger.debug(f"CMD: {cmd}")
+
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
     if result.returncode != 0:

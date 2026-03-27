@@ -2,7 +2,7 @@ from automations.restart_net import restart_net
 from core.logger import setup_logger
 
 # iniciando logger
-logger = setup_logger()
+logger = setup_logger("AutoHUB.runner")
 
 # Lista de automações
 AUTOMATIONS = {
@@ -21,7 +21,7 @@ def show_menu():
 
 #função principal
 def main():
-    print("\n\n")
+    logger.info("===== NOVA EXECUÇÃO =====\n")
     logger.info("AutoHub iniciado")
 
     while True:
@@ -40,8 +40,8 @@ def main():
                 func()
                 logger.info("Execução concluída com sucesso!")
             
-            except Exception as e:
-                logger.info(f"Erro ao executar: {e}")
+            except Exception:
+                logger.exception("Erro ao executar!")
 
         else:
             print("Opção inválida!")
