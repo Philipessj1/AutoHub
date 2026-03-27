@@ -10,7 +10,7 @@ def run_command(cmd):
     else:
         print(result.stdout)
 
-def restart_ethernet():
+def restart_net():
     print("Desativando adaptador...")
     run_command(f'netsh interface set interface "{ADAPTER_NAME}" admin=disable')
 
@@ -20,4 +20,4 @@ def restart_ethernet():
     run_command(f'netsh interface set interface "{ADAPTER_NAME}" admin=enable')
 
 if __name__ == "__main__":
-    restart_ethernet()
+    restart_net()
