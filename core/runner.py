@@ -1,26 +1,28 @@
-from automations.restart_net import restart_net
+from automations.restart_net import run as restart_net
 from core.logger import setup_logger
-from core.remote_client import restart_remote
+from core.remote_client import run_remote, list_remote
 
 # iniciando logger
 logger = setup_logger("AutoHUB.runner", "runner")
 
+REMOTE_IP = "192.168.0.67"
+
 # Lista de automações
-AUTOMATIONS = {
+OPTIONS = {
     "1": {
         "name": "Reiniciar Rede Local",
         "function": restart_net
     },
     "2": {
-        "name": "Reiniciar Rede Remoto",
-        "function": lambda: restart_remote("192.168.0.67")
+        "name": "Listar comandos remotos",
+        "function": lambda: print(list_remote(REMOTE_IP))
     }
 }
 
 # mostra o menu
 def show_menu():
-    print("\n=== AutoHub v0.01 ===")
-    for key, value in AUTOMATIONS.items():
+    print("\n=== AutoHub v0.02 ===")
+    for key, value in OPTIONS.items():
         print(f"{key} - {value['name']}")
     print("0 - Sair")
 
@@ -37,9 +39,9 @@ def main():
             logger.info("Encerrando AutoHub\n\n")
             break
 
-        elif choice in AUTOMATIONS:
-            func = AUTOMATIONS[choice]["function"]
-            logger.info(f"Executando: {AUTOMATIONS[choice]['name']}")
+        elif choice in OPTIONS:
+            func = OPTIONS[choice]["function"]
+            logger.info(f"Executando: {OPTIONS[choice]['name']}")
             
             try:
                 func()
@@ -48,8 +50,27 @@ def main():
             except Exception:
                 logger.exception("Erro ao executar!")
 
+        elif choice == "remote":
+            commands = list_remote(REMOTE_IP)
+
+            if not commands:
+                print("Nenhuma automação encontrada.")
+                continue
+
+            print("\n=== Comandos Remotos ===")
+            for i, cmd in enumerate(commands):
+                print(f"{i + 1} - {cmd}")
+            
+            selected = input("Escolha o comando: ")
+
+            try:
+                cmd = commands[int(selected) - 1]
+                run_remote(REMOTE_IP, cmd)
+            
+            except:
+                print("Escolha inválida!")
         else:
-            print("Opção inválida!")
+            print("Opção inválida")
 
 if __name__ == "__main__":
     main()

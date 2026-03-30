@@ -22,7 +22,7 @@ def run_command(cmd):
             logger.info(output)
 
 # função principal 
-def restart_net():
+def run():
     logger.info("Desativando adaptador...")
     run_command(f'netsh interface set interface "{ADAPTER_NAME}" admin=disable')
 
@@ -32,4 +32,4 @@ def restart_net():
     run_command(f'netsh interface set interface "{ADAPTER_NAME}" admin=enable')
 
 if __name__ == "__main__":
-    restart_net()
+    run()

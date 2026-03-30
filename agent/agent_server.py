@@ -1,10 +1,12 @@
 from flask import Flask, jsonify
 from core.logger import setup_logger
-from automations.restart_net import restart_net
+from core.automation_loader import load_automations
 import threading
 
 app = Flask(__name__)
 logger = setup_logger("AutoHUB.agent")
+
+AUTOMATIONS = load_automations()
 
 def run_in_background(fname, func):
     def wrapper():
@@ -19,29 +21,26 @@ def run_in_background(fname, func):
     thread.daemon = True
     thread.start()
 
-def run_cmd(fname, func):
-    logger.info(f"Comando recebido: {fname}")
+@app.route("/")
+def home():
+    return jsonify({
+        "status": "Agent online",
+        "automations": list(AUTOMATIONS.keys())
+    })
 
-    try:
-        run_in_background(fname, func)
-        return jsonify({
+@app.route("/run/<command>")
+def run_cmd_route(command):
+    if command not in AUTOMATIONS:
+        return jsonify({"status": "error", "message": "Comando não encontrado"}), 404
+
+    logger.info(f"Comando recebido: {command}")
+
+    run_in_background(command, AUTOMATIONS[command])
+    
+    return jsonify({
             "status": "accepted",
             "message": "Execução Iniciada"
             })
-    
-    except Exception as e:
-        logger.exception("Erro ao executar restart-network")
-        return jsonify({"status": "error", "message": str(e)})
-
-@app.route("/")
-def home():
-    return jsonify({"status": "Agent online"})
-
-@app.route("/restart-network")
-def run_restart():
-    response = run_cmd("restart-network", restart_net)
-    return response
-
 
 if __name__ == "__main__":
     logger.info("Iniciando Agent...")
