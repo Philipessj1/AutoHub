@@ -20,14 +20,14 @@ def cleanup_logs(days=7):
                 os.remove(path)
 
 
-def setup_logger(name="AutoHUB", prefix="app", log_level=logging.INFO,):
+def setup_logger(name="AutoHUB", suffix="app", log_level=logging.INFO,):
     # cria a pasta de logs se não existir
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
 
     # nome do arquivo de log com a data
     today = datetime.now().strftime("%Y-%m-%d")
-    log_file = os.path.join(LOG_DIR, f"{prefix}_{today}.log")
+    log_file = os.path.join(LOG_DIR, f"{today}_{suffix}.log")
 
     logger = logging.getLogger(name)
     logger.setLevel(log_level)

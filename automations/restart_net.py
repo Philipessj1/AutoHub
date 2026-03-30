@@ -3,7 +3,7 @@ import subprocess
 import time
 
 # iniciando logger
-logger = setup_logger("AutoHUB.restart_net")
+logger = setup_logger("AutoHUB.restart_net", "restart_net")
 
 # nome do adaptador Ex: Ethernet, Wi-fi
 ADAPTER_NAME = "Ethernet"
@@ -26,7 +26,7 @@ def restart_net():
     logger.info("Desativando adaptador...")
     run_command(f'netsh interface set interface "{ADAPTER_NAME}" admin=disable')
 
-    time.sleep(5)
+    time.sleep(3)
 
     logger.info("Ativando adaptador...")
     run_command(f'netsh interface set interface "{ADAPTER_NAME}" admin=enable')

@@ -1,0 +1,5 @@
+dependencias:
+
+core: requests
+
+agent: flask

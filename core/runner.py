@@ -1,14 +1,19 @@
 from automations.restart_net import restart_net
 from core.logger import setup_logger
+from core.remote_client import restart_remote
 
 # iniciando logger
-logger = setup_logger("AutoHUB.runner")
+logger = setup_logger("AutoHUB.runner", "runner")
 
 # Lista de automações
 AUTOMATIONS = {
     "1": {
-        "name": "Reiniciar Rede",
+        "name": "Reiniciar Rede Local",
         "function": restart_net
+    },
+    "2": {
+        "name": "Reiniciar Rede Remoto",
+        "function": lambda: restart_remote("192.168.0.67")
     }
 }
 
@@ -17,7 +22,7 @@ def show_menu():
     print("\n=== AutoHub v0.01 ===")
     for key, value in AUTOMATIONS.items():
         print(f"{key} - {value['name']}")
-        print("0 - Sair")
+    print("0 - Sair")
 
 #função principal
 def main():
