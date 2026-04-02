@@ -16,75 +16,89 @@ class AutoHUBApp(ctk.CTk):
 
         # Nome e Tamanho da GUI
         self.title("AutoHUB")
-        self.geometry("500x400")
+        self.geometry("500x500")
+
+        # Frame principal
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Config grid
+        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(1, weight=1)
+
+        # Inicializa agents
+        self.agents = []
 
         # Título
-        self.label = ctk.CTkLabel(self, text="AutoHUB", font=("Arial", 24))
-        self.label.pack(pady=10)
+        self.label = ctk.CTkLabel(self.main_frame, text="AutoHUB", font=("Arial", 24))
+        self.label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
 
         # Botão local
         self.local_btn = ctk.CTkButton(
-            self,
+            self.main_frame,
             text="Reiniciar Rede Local",
-            command=self.run_local
+            command=self.run_local,
+            width=200
         )
-        self.local_btn.pack(pady=10)
+        self.local_btn.grid(row=1, column=0, columnspan=2, pady=10)
 
         ## Comandos remotos
         # Menu de agents
         self.agent_menu = ctk.CTkOptionMenu(
-            self,
+            self.main_frame,
             values=["Nenhum"]
         )
-        self.agent_menu.pack(pady=5)
+        self.agent_menu.grid(row=2, column=0, columnspan=2, pady=10)
 
         # Input do Nome do Agent
-        self.name_entry = ctk.CTkEntry(self, placeholder_text="Nome do Agent")
-        self.name_entry.pack(pady=5)
+        self.name_entry = ctk.CTkEntry(self.main_frame, placeholder_text="Nome do Agent")
+        self.name_entry.grid(row=3, column=0, padx=5, pady=5)
 
         # Input do Ip do Agent
-        self.ip_entry = ctk.CTkEntry(self, placeholder_text="Ip do Agent")
-        self.ip_entry.pack(pady=5)
+        self.ip_entry = ctk.CTkEntry(self.main_frame, placeholder_text="Ip do Agent")
+        self.ip_entry.grid(row=3, column=1, padx=5, pady=5)
 
-        # Carrega os ips salvos
-        self.load_agents()
-
-        # Botão de salvar ips
+        # Botão de salvar agents
         self.save_agent_btn = ctk.CTkButton(
-            self,
+            self.main_frame,
             text="Salvar Agent",
             command=self.save_agent
         )
-        self.save_agent_btn.pack(pady=5)
+        self.save_agent_btn.grid(row=4, column=0, columnspan=2, pady=10)
 
         # Botão listar remoto
         self.list_btn = ctk.CTkButton(
-            self,
+            self.main_frame,
             text="Listar Comandos Remotos",
             command=self.load_remote_commands
         )
-        self.list_btn.pack(pady=10)
+        self.list_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
         # Menu de comandos
         self.commands_menu = ctk.CTkOptionMenu(
-            self,
+            self.main_frame,
             values=["Nenhum"]
         )
-        self.commands_menu.pack(pady=10)
+        self.commands_menu.grid(row=6, column=0, columnspan=2, pady=5)
 
         # Executar remoto
         self.run_remote_btn = ctk.CTkButton(
-            self,
+            self.main_frame,
             text="Executar Remoto",
             command=self.run_remote_command
         )
-        self.run_remote_btn.pack(pady=10)
+        self.run_remote_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
         # Log
-        self.log_box = ctk.CTkTextbox(self, height=120)
-        self.log_box.pack(pady=10, padx=10, fill="both")
+        self.log_box = ctk.CTkTextbox(self.main_frame, height=120)
+        self.log_box.grid(row=8, column=0, columnspan=2, pady=10, sticky="nsew")
 
-    # Pegar ip do Input
+        self.main_frame.grid_rowconfigure(8, weight=1)
+
+        # Carrega os agents salvos
+        self.load_agents()
+
+    # Pegar ip do Input (fallback)
     def get_ip(self):
         return self.ip_entry.get().strip()
 
@@ -104,28 +118,31 @@ class AutoHUBApp(ctk.CTk):
         ip = self.get_selected_ip()
 
         if not ip:
-            self.log("Nunhum agent selecionado!")
+            self.log("Nenhum agent selecionado!")
             return
 
         self.log(f"Buscando comandos de {ip}...")
 
         def task():
-            # Buscar comandos remotos
             commands = list_remote(ip)
-
-            # atualizar UI na thread principal
-            self.after(0, self.update_commands_ui, commands)
+            self.after(
+                0, 
+                self.update_commands_ui, 
+                commands, 
+                "Comandos carregados!",
+                "Erro ao listar comandos."
+                )
 
         self.run_async(task)
 
     # Update na interface após função
-    def update_commands_ui(self, commands):
-        if commands:
-            self.commands_menu.configure(values=commands)
-            self.commands_menu.set(commands[0])
-            self.log("Comandos carregados!")
+    def update_commands_ui(self, data, acemsg, errmsg):
+        if data:
+            self.commands_menu.configure(values=data)
+            self.commands_menu.set(data[0])
+            self.log(acemsg)
         else:
-            self.log("Nenhum comando encontrado.")
+            self.log(errmsg)
 
     # Rodar funções remotamente
     def run_remote_command(self):
@@ -143,7 +160,7 @@ class AutoHUBApp(ctk.CTk):
     # Rodar função em async
     def run_async(self, func):
         threading.Thread(target=func, daemon=True).start()
-    
+
     # Carregar agents
     def load_agents(self):
         if not os.path.exists(CONFIG_FILE):
@@ -153,27 +170,23 @@ class AutoHUBApp(ctk.CTk):
             with open(CONFIG_FILE, "r") as f:
                 content = f.read().strip()
 
-                # arquivo vazio → ignora
                 if not content:
-                    return  
+                    return
 
                 data = json.loads(content)
 
-                # garantir que é lista
                 if isinstance(data, list):
                     self.agents = data
-
                     names = [agent["name"] for agent in data]
-                    
-                    # Insere os agents salvos no menu
+
                     if names:
                         self.agent_menu.configure(values=names)
                         self.agent_menu.set(names[0])
 
         except Exception as e:
             self.log(f"Erro ao carregar Agents: {e}")
-            
-    # Salvar IP
+
+    # Salvar Agent
     def save_agent(self):
         name = self.name_entry.get().strip()
         ip = self.ip_entry.get().strip()
@@ -182,27 +195,22 @@ class AutoHUBApp(ctk.CTk):
             self.log("Nome e IP são obrigatórios!")
             return
 
-        # carregar agents existentes
         data = []
 
         if os.path.exists(CONFIG_FILE):
             try:
                 with open(CONFIG_FILE, "r") as f:
                     content = f.read().strip()
-
                     if content:
                         data = json.loads(content)
-
             except:
                 data = []
 
-        # evitar duplicação
         for agent in data:
             if agent["name"] == name:
                 self.log("Nome já existe!")
                 return
-        
-        # Salva o arquivo
+
         data.append({"name": name, "ip": ip})
 
         with open(CONFIG_FILE, "w") as f:
@@ -211,7 +219,8 @@ class AutoHUBApp(ctk.CTk):
         self.log("Agent salvo!")
 
         self.load_agents()
-    
+
+    # Pegar IP do agent selecionado
     def get_selected_ip(self):
         selected_name = self.agent_menu.get()
 
@@ -220,7 +229,8 @@ class AutoHUBApp(ctk.CTk):
                 return agent["ip"]
 
         return None
-    
+
+
 if __name__ == "__main__":
     app = AutoHUBApp()
     app.mainloop()
