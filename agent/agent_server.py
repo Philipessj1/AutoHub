@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from core.logger import setup_logger
 from core.automation_loader import load_automations
 import threading
+import socket
 
 app = Flask(__name__)
 logger = setup_logger("AutoHUB.agent")
@@ -20,6 +21,15 @@ def run_in_background(fname, func):
     thread = threading.Thread(target=wrapper)
     thread.daemon = True
     thread.start()
+
+def is_already_running(port=5000):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("0.0.0.0", port))
+        s.close()
+        return False
+    except:
+        return True
 
 @app.route("/")
 def home():
@@ -43,5 +53,9 @@ def run_cmd_route(command):
             })
 
 if __name__ == "__main__":
+    if is_already_running(5000):
+        print("Agent já está rodando!")
+        exit()
+
     logger.info("Iniciando Agent...")
     app.run(host="0.0.0.0", port=5000)
