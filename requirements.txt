@@ -1,5 +1,7 @@
 dependencias:
 
+python 3.11.9
+
 core: requests
 
 agent: flask

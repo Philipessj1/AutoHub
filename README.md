@@ -24,7 +24,7 @@ Executa automações remotamente:
 ---
 
 # 🏗️ Estrutura do Projeto
-
+```
 AutoHUB/
 │
 ├── agent/ # Servidor (Agent)
@@ -43,7 +43,7 @@ AutoHUB/
 ├── logs/ # Logs do sistema
 │
 └── README.md
-
+```
 ---
 
 # ⚙️ Funcionalidades
@@ -106,11 +106,34 @@ Executa uma automação
 
 ```
 
+## 🔄 Rodando o client localmente
+
+- Instale o python (3.11.9 <- usado no projeto)
+
+```winget install Python.Python.3.11 --version 3.11.9```
+
+- Inicie o venv
+
+```python -m venv venv```
+
+- Instale as dependencias (flask, requests, customtkinter)
+
+```pip install flask requests customtkinker```
+
+- Rode a interface grafica
+
+```python -m gui.app```
+
 ## 📦 Distribuição (Agent)
 
 O Agent pode ser convertido para .exe usando:
 
+```pyinstaller --onefile agent/agent_server.py```
+
+- Copie todo o conteudo de agent_server_backup.spec para agent_server.spec e depois rode:
+
 ```pyinstaller agent_server.spec```
+
 
 ## 🔧 Características do build
 
