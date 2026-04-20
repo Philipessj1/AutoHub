@@ -34,13 +34,13 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='AutoHUB Agent',
+    name='autohub_agent',
     icon='icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False
+    console=True
 )
 
 coll = COLLECT(
