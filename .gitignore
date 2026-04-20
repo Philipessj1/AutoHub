@@ -1,5 +1,18 @@
-*venv
-*logs
-*dist
-*build
-__pycache__
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Node
+node_modules/
+build/
+
+# PyInstaller
+dist/
+build/
+
+# logs
+logs/
+
+# configs locais
+configs/*.json

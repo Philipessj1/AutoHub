@@ -230,7 +230,6 @@ class AutoHUBApp(ctk.CTk):
 
         return None
 
-
 if __name__ == "__main__":
     app = AutoHUBApp()
     app.mainloop()
